@@ -18,11 +18,87 @@
                 },
                 "rules": [
                     {
+                        "description": "enter to \\",
+                        "manipulators": [
+                            {
+                                "conditions": [
+                                    {
+                                        "identifiers": [
+                                            {
+                                                "product_id": 8241,
+                                                "vendor_id": 12538
+                                            }
+                                        ],
+                                        "type": "device_if"
+                                    }
+                                ],
+                                "from": {
+                                    "key_code": "return_or_enter",
+                                    "modifiers": {
+                                        "optional": []
+                                    }
+                                },
+                                "to": [
+                                    {
+                                        "key_code": "backslash",
+                                        "modifiers": [
+                                            "command"
+                                        ]
+                                    }
+                                ],
+                                "to_if_alone": [],
+                                "type": "basic"
+                            }
+                        ]
+                    },
+                    {
+                        "description": "Left control to Hyper",
+                        "manipulators": [
+                            {
+                                "conditions": [
+                                    {
+                                        "identifiers": [
+                                            {
+                                                "product_id": 834,
+                                                "vendor_id": 1452
+                                            },
+                                            {
+                                                "product_id": 1553,
+                                                "vendor_id": 3897
+                                            }
+                                        ],
+                                        "type": "device_if"
+                                    }
+                                ],
+                                "from": {
+                                    "key_code": "left_control",
+                                    "modifiers": {
+                                        "optional": [
+                                            "any"
+                                        ]
+                                    }
+                                },
+                                "to": [
+                                    {
+                                        "key_code": "left_command",
+                                        "modifiers": [
+                                            "left_control",
+                                            "right_shift",
+                                            "left_option"
+                                        ]
+                                    }
+                                ],
+                                "to_if_alone": [],
+                                "type": "basic"
+                            }
+                        ]
+                    },
+                    {
                         "description": "Post Esc if Caps is tapped, Control if held.",
                         "manipulators": [
                             {
                                 "from": {
-                                    "key_code": "left_control",
+                                    "key_code": "caps_lock",
                                     "modifiers": {
                                         "optional": [
                                             "any"
@@ -54,7 +130,7 @@
                                         "mandatory": [
                                             "command",
                                             "control",
-                                            "shift",
+                                            "right_shift",
                                             "option"
                                         ]
                                     }
@@ -79,7 +155,7 @@
                                         "mandatory": [
                                             "command",
                                             "control",
-                                            "shift",
+                                            "right_shift",
                                             "option"
                                         ]
                                     }
@@ -104,7 +180,7 @@
                                         "mandatory": [
                                             "command",
                                             "control",
-                                            "shift",
+                                            "right_shift",
                                             "option"
                                         ]
                                     }
@@ -129,7 +205,7 @@
                                         "mandatory": [
                                             "command",
                                             "control",
-                                            "shift",
+                                            "right_shift",
                                             "option"
                                         ]
                                     }
@@ -137,6 +213,81 @@
                                 "to": [
                                     {
                                         "shell_command": "open -a KeePassXC"
+                                    }
+                                ],
+                                "to_if_alone": [],
+                                "type": "basic"
+                            }
+                        ]
+                    },
+                    {
+                        "description": "Hyper + v opens vim",
+                        "manipulators": [
+                            {
+                                "from": {
+                                    "key_code": "v",
+                                    "modifiers": {
+                                        "mandatory": [
+                                            "command",
+                                            "control",
+                                            "right_shift",
+                                            "option"
+                                        ]
+                                    }
+                                },
+                                "to": [
+                                    {
+                                        "shell_command": "/opt/homebrew/bin/python3 $HOME/bin/iterm2-toggle.py \"^nvim\""
+                                    }
+                                ],
+                                "to_if_alone": [],
+                                "type": "basic"
+                            }
+                        ]
+                    },
+                    {
+                        "description": "Hyper + s opens slack",
+                        "manipulators": [
+                            {
+                                "from": {
+                                    "key_code": "s",
+                                    "modifiers": {
+                                        "mandatory": [
+                                            "command",
+                                            "control",
+                                            "right_shift",
+                                            "option"
+                                        ]
+                                    }
+                                },
+                                "to": [
+                                    {
+                                        "shell_command": "open -a slack"
+                                    }
+                                ],
+                                "to_if_alone": [],
+                                "type": "basic"
+                            }
+                        ]
+                    },
+                    {
+                        "description": "Hyper + c opens slack",
+                        "manipulators": [
+                            {
+                                "from": {
+                                    "key_code": "c",
+                                    "modifiers": {
+                                        "mandatory": [
+                                            "command",
+                                            "control",
+                                            "right_shift",
+                                            "option"
+                                        ]
+                                    }
+                                },
+                                "to": [
+                                    {
+                                        "shell_command": "open -a slack"
                                     }
                                 ],
                                 "to_if_alone": [],
@@ -394,7 +545,63 @@
                         "product_id": 24926,
                         "vendor_id": 7504
                     },
+                    "ignore": false,
+                    "manipulate_caps_lock_led": true,
+                    "simple_modifications": [],
+                    "treat_as_built_in_keyboard": false
+                },
+                {
+                    "disable_built_in_keyboard_if_exists": false,
+                    "fn_function_keys": [],
+                    "identifiers": {
+                        "is_keyboard": true,
+                        "is_pointing_device": false,
+                        "product_id": 866,
+                        "vendor_id": 10730
+                    },
+                    "ignore": false,
+                    "manipulate_caps_lock_led": true,
+                    "simple_modifications": [],
+                    "treat_as_built_in_keyboard": false
+                },
+                {
+                    "disable_built_in_keyboard_if_exists": false,
+                    "fn_function_keys": [],
+                    "identifiers": {
+                        "is_keyboard": false,
+                        "is_pointing_device": true,
+                        "product_id": 613,
+                        "vendor_id": 76
+                    },
                     "ignore": true,
+                    "manipulate_caps_lock_led": false,
+                    "simple_modifications": [],
+                    "treat_as_built_in_keyboard": false
+                },
+                {
+                    "disable_built_in_keyboard_if_exists": false,
+                    "fn_function_keys": [],
+                    "identifiers": {
+                        "is_keyboard": true,
+                        "is_pointing_device": true,
+                        "product_id": 8241,
+                        "vendor_id": 12538
+                    },
+                    "ignore": true,
+                    "manipulate_caps_lock_led": true,
+                    "simple_modifications": [],
+                    "treat_as_built_in_keyboard": false
+                },
+                {
+                    "disable_built_in_keyboard_if_exists": false,
+                    "fn_function_keys": [],
+                    "identifiers": {
+                        "is_keyboard": true,
+                        "is_pointing_device": false,
+                        "product_id": 8241,
+                        "vendor_id": 12538
+                    },
+                    "ignore": false,
                     "manipulate_caps_lock_led": true,
                     "simple_modifications": [],
                     "treat_as_built_in_keyboard": false
@@ -527,18 +734,7 @@
                 "delay_milliseconds_before_open_device": 1000
             },
             "selected": true,
-            "simple_modifications": [
-                {
-                    "from": {
-                        "key_code": "caps_lock"
-                    },
-                    "to": [
-                        {
-                            "key_code": "left_control"
-                        }
-                    ]
-                }
-            ],
+            "simple_modifications": [],
             "virtual_hid_keyboard": {
                 "country_code": 0,
                 "indicate_sticky_modifier_keys_state": true,

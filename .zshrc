@@ -73,12 +73,20 @@ ZSH_THEME="powerlevel10k/powerlevel10k"
 # Would you like to use another custom folder than $ZSH/custom?
 # ZSH_CUSTOM=/path/to/new-custom-folder
 
+# zsh-autoswitch-virtualenv settings
+export AUTOSWITCH_DEFAULT_PYTHON="python3"
+
 # Which plugins would you like to load?
 # Standard plugins can be found in $ZSH/plugins/
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(vi-mode git golang fzf fzf-marks direnv)
+plugins=(zsh-pyenv vi-mode git golang fzf fzf-marks direnv auto-notify autoswitch_virtualenv)
+
+# plugins config
+
+# notify
+zstyle ':notify:*' command-complete-timeout 3
 
 source $ZSH/oh-my-zsh.sh
 
@@ -113,8 +121,23 @@ export LANG="en_US.UTF-8"
 export LC_ALL="en_US.UTF-8"
 export PATH="$HOME/Workspaces/go/bin:$PATH"
 export PATH="$HOME/bin:$PATH"
-export PATH="$HOME/bin/go/1.18/bin:$PATH"
+export PATH="$HOME/.local/share/nvim/mason/bin/:$PATH" # Neovim Mason install path
 export GOPATH="$HOME/Workspaces/go"
+
+if [ -d "/opt/homebrew/opt/ruby@3.1/bin" ]; then
+  export PATH=/opt/homebrew/opt/ruby@3.1/bin:$PATH
+  export PATH=`gem environment gemdir`/bin:$PATH
+fi
+
+if [ -d "/opt/homebrew/opt/ansible@8/bin" ]; then
+export PATH="/opt/homebrew/opt/ansible@8/bin:$PATH"
+fi
+
+export PATH="$HOME/.pyenv/bin:$PATH"
+eval "$(pyenv init -)"
+eval "$(pyenv virtualenv-init -)"
+
+export PATH="bin:$PATH"
 
 export EDITOR="nvim"
 export GIT_AUTHOR_NAME=`/usr/bin/git config user.name`
@@ -129,3 +152,116 @@ export FZF_DEFAULT_OPTS='--height 40% --reverse'
 
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
 
+function cdl() {
+    selection=$(mdfind -name $1 | fzf)
+    dir=$(dirname $selection)
+    cd "$dir"
+}
+
+function projects() {
+    dirs=$(sed 's/ : //g' $FZF_MARKS_FILE | tr  '\n' ' ')
+    # echo $dirs
+    selection=$(find $(echo $dirs) -type d -maxdepth 1 | fzf)
+    echo $selection
+    cd $selection
+}
+
+function pipelines() {
+    gopath=$(go env GOPATH)
+    selection=$(
+        unfunction _direnv_hook 2>/dev/null
+        for d in $gopath/src/bitbucket.org/tim_online/*/.git; do
+            d=$(dirname $d)
+            base=$(basename $d)
+            (cd $d; git ls-files | sed "s,/.*,/," | egrep ".json$" |  sed "s,^,$base/," 2>/dev/null)
+        done | fzf -x
+    )
+    cd "$gopath/src/bitbucket.org/tim_online/$(dirname $selection)"
+}
+
+capture() {
+    sudo dtrace -p "$1" -qn '
+        syscall::write*:entry
+        /pid == $target && arg0 == 1/ {
+            printf("%s", copyinstr(arg1, arg2));
+        }
+    '
+}
+
+function enable_proxy() {
+    while read -r service; do
+        networksetup -setsocksfirewallproxystate "$service" on
+        networksetup -setsocksfirewallproxy "$service" localhost 8080
+        echo "SOCKS proxy enabled for ${service}"
+    done <<< "$(active-network-services)"
+}
+
+function disable_proxy() {
+    while read -r service; do
+        networksetup -setsocksfirewallproxystate $service off
+        echo "SOCKS proxy disabled for ${service}"
+    done <<< "$(active-network-services)"
+}
+
+function proxy() {
+    enable_proxy
+    trap disable_proxy INT
+    trap 'echo "Signal SIGINT caught"' SIGINT
+    ssh -q -T -n -N -D 8080 $1
+    disable_proxy
+}
+
+function active-network-services() {
+    while read -r line; do
+        sname=$(echo "$line" | awk -F  "(, )|(: )|[)]" '{print $2}')
+        sdev=$(echo "$line" | awk -F  "(, )|(: )|[)]" '{print $4}')
+        #echo "Current service: $sname, $sdev, $currentservice"
+        if [ -n "$sdev" ]; then
+            ifout="$(ifconfig "$sdev" 2>/dev/null)"
+            echo "$ifout" | grep 'status: active' > /dev/null 2>&1
+            rc="$?"
+            if [ "$rc" -eq 0 ]; then
+                currentservice="$sname"
+                currentdevice="$sdev"
+                currentmac=$(echo "$ifout" | awk '/ether/{print $2}')
+
+                # may have multiple active devices, so echo it here
+                # echo "$currentservice, $currentdevice, $currentmac"
+                echo "$currentservice"
+            fi
+        fi
+    done <<< "$(networksetup -listnetworkserviceorder | grep 'Hardware Port')"
+}
+
+# function fail_if_stderr() (
+#   rc=$({
+#     ("$@" 2>&1 >&3 3>&- 4>&-; echo "$?" >&4) |
+#     grep '^' >&2 3>&- 4>&-
+#   } 4>&1)
+#   err=$?
+#   [ "$rc" -eq 0 ] || exit "$rc"
+#   [ "$err" -ne 0 ] || exit 125
+# ) 3>&1
+
+# function run_until_no_error() (
+#     until fail_if_stderr "$@"; do; done
+# )
+
+function faketty () {
+     script -qefc "$(printf "%q " "$@")" /dev/null
+ }
+
+function until_run_complete() (
+    until $@ 2>&1 | tee > /dev/stderr | grep -q "\[OMNIBOOST\]-run complete"; do;
+        echo "\ndidn't find '[OMNIBOOST]-run complete': trying again\n"
+        sleep 5
+    done
+)
+
+# enable ngrok completion
+  if command -v ngrok &>/dev/null; then
+    eval "$(ngrok completion)"
+  fi
+
+export BEARER_TOKEN_INTEGRATIONS_API=$(security find-generic-password -w -s 'Bearer token integrations API')
+export PATH="/opt/homebrew/opt/node@20/bin:$PATH"

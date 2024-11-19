@@ -151,6 +151,7 @@ require("neo-tree").setup({
     },
     nesting_rules = {},
     filesystem = {
+        bind_to_cwd = true,
         filtered_items = {
             visible = false, -- when true, they will just be displayed differently than normal items
             hide_dotfiles = true,
@@ -312,5 +313,5 @@ require("neo-tree").setup({
 })
 
 -- maybe add something like this: https://www.reddit.com/r/neovim/comments/118unhi/nvimtree_follow_open_files_buffers/j9kvxgb/
-vim.keymap.set({ "n" }, "-", ":Neotree reveal position=current toggle<cr>",
+vim.keymap.set({ "n" }, "-", ":Neotree reveal position=current dir=. toggle<cr>",
     { desc = "Toggle neotree" })

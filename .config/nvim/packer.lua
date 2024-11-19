@@ -61,41 +61,59 @@ return require('packer').startup(function(use)
 
     -- Delete buffers and close files in Vim without closing your windows or
     -- messing up your layout
-    use({ 'moll/vim-bbye' })
-
-    use {
-        "ViViDboarder/wombat.nvim",
-        requires = "rktjmp/lush.nvim",
+    use({
+        'moll/vim-bbye',
         config = function()
-            -- rename theme
-            vim.g.colors_name = "zzzzzzz"
-
-            local lush = require('lush')
-            local wombat = require('lush_theme.wombat_lush')
-            local c = require("lush_theme.wombat_lush_colors").colors
-
-            -- we can apply modifications ontop of the existing colorscheme
-            local spec = lush.extends({ wombat }).with(function()
-                -- local spec = lush(function()
-                return {
-                    -- Use the existing Comment group in wombat, but adjust the gui attribute
-                    Identifier { fg = c.White },
-                }
-            end)
-
-            -- then pass the extended spec to lush for application
-            -- spec = lush.merge({ wombat, lush(spec) })
-            lush(spec)
-            -- return lush.apply(spec)
-            -- return spec
-
-            -- enable colorscheme
-            -- vim.cmd('colorscheme wombat_lush')
+            vim.keymap.set("n", "<leader>bd", ':Bdelete<CR>')
         end
-    }
+    })
+
+    -- use {
+    --     "ViViDboarder/wombat.nvim",
+    --     requires = "rktjmp/lush.nvim",
+    --     config = function()
+    --         -- rename theme
+    --         vim.g.colors_name = "zzzzzzz"
+    --
+    --         local lush = require('lush')
+    --         local wombat = require('lush_theme.wombat_lush')
+    --         local c = require("lush_theme.wombat_lush_colors").colors
+    --
+    --         -- we can apply modifications ontop of the existing colorscheme
+    --         local spec = lush.extends({ wombat }).with(function()
+    --             return {
+    --                 -- Use the existing Comment group in wombat, but adjust the gui attribute
+    --                 Identifier { fg = c.White },
+    --             }
+    --         end)
+    --
+    --         lush(spec)
+    --     end
+    -- }
+
+    -- Retro groove color scheme for Vim
+    use({
+        'morhetz/gruvbox',
+        config = function()
+            vim.cmd('colorscheme gruvbox')
+        end
+    })
+
+    -- use({
+    --     'itchyny/lightline.vim',
+    -- })
 
     use({
-        'itchyny/lightline.vim',
+        'vim-airline/vim-airline',
+    })
+
+    -- A fancy, configurable, notification manager for NeoVim
+    use({
+        'rcarriga/nvim-notify',
+        config = function()
+            -- set as default notification function
+            vim.notify = require("notify")
+        end
     })
 
     use({
@@ -125,12 +143,48 @@ return require('packer').startup(function(use)
 
     -- use({'github/copilot.vim'})
 
-    use({
-        'zbirenbaum/copilot.lua',
+    -- use({
+    --     'zbirenbaum/copilot.lua',
+    --     config = function()
+    --         vim.cmd('runtime! config/copilot.lua')
+    --     end
+    -- })
+    --
+    use {
+        "hrsh7th/nvim-cmp",
+        requires = {
+            -- Autocompletion
+            { 'hrsh7th/nvim-cmp' },     -- Required
+            { 'hrsh7th/cmp-nvim-lsp' }, -- Required
+            { 'hrsh7th/cmp-buffer' },
+            { 'hrsh7th/cmp-cmdline' },
+            { 'hrsh7th/cmp-path' },
+            { 'hrsh7th/cmp-nvim-lua' }, -- autocomplete neovim api
+            { 'Exafunction/codeium.nvim' },
+            -- {
+            --     "zbirenbaum/copilot-cmp",
+            --     after = { "copilot.lua" },
+            --     config = function()
+            --         require("copilot_cmp").setup()
+            --     end
+            -- },                      -- load copilot_cmp
+            { 'L3MON4D3/LuaSnip' }, -- Required
+        },
         config = function()
-            vim.cmd('runtime! config/copilot.lua')
+            vim.cmd('runtime! config/cmp.lua')
         end
-    })
+    }
+
+    use {
+        "Exafunction/codeium.nvim",
+        requires = {
+            "nvim-lua/plenary.nvim",
+            "hrsh7th/nvim-cmp",
+        },
+        config = function()
+            vim.cmd('runtime! config/codeium.lua')
+        end
+    }
 
     use {
         'VonHeikemen/lsp-zero.nvim',
@@ -147,22 +201,6 @@ return require('packer').startup(function(use)
                 end,
             },
             { 'williamboman/mason-lspconfig.nvim' }, -- Optional
-
-            -- Autocompletion
-            { 'hrsh7th/nvim-cmp' },     -- Required
-            { 'hrsh7th/cmp-nvim-lsp' }, -- Required
-            { 'hrsh7th/cmp-buffer' },
-            { 'hrsh7th/cmp-cmdline' },
-            { 'hrsh7th/cmp-path' },
-            { 'hrsh7th/cmp-nvim-lua' }, -- autocomplete neovim api
-            {
-                "zbirenbaum/copilot-cmp",
-                after = { "copilot.lua" },
-                config = function()
-                    require("copilot_cmp").setup()
-                end
-            },                      -- load copilot_cmp
-            { 'L3MON4D3/LuaSnip' }, -- Required
         },
         config = function()
             vim.cmd('runtime! config/lsp.lua')
